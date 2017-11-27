@@ -13,6 +13,7 @@ namespace IHMForum
 {
     public partial class FenAccueil : Form
     {
+        //initializer
         public FenAccueil()
         {
             InitializeComponent();
