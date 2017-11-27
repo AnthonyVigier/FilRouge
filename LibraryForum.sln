@@ -5,6 +5,10 @@ VisualStudioVersion = 15.0.27004.2002
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LibraryForum", "LibraryForum\LibraryForum.csproj", "{E9A816FB-3150-4AE6-81BC-DA5A92D56DEE}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "IHMForum", "IHMForum\IHMForum.csproj", "{71ACB763-7859-4D65-98E7-345C53233F84}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WebServiceRest", "IForum\WebServiceRest.csproj", "{D78A8B32-2132-481F-98D1-4F5D7DD96170}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -15,6 +19,14 @@ Global
 		{E9A816FB-3150-4AE6-81BC-DA5A92D56DEE}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{E9A816FB-3150-4AE6-81BC-DA5A92D56DEE}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{E9A816FB-3150-4AE6-81BC-DA5A92D56DEE}.Release|Any CPU.Build.0 = Release|Any CPU
+		{71ACB763-7859-4D65-98E7-345C53233F84}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{71ACB763-7859-4D65-98E7-345C53233F84}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{71ACB763-7859-4D65-98E7-345C53233F84}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{71ACB763-7859-4D65-98E7-345C53233F84}.Release|Any CPU.Build.0 = Release|Any CPU
+		{D78A8B32-2132-481F-98D1-4F5D7DD96170}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{D78A8B32-2132-481F-98D1-4F5D7DD96170}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{D78A8B32-2132-481F-98D1-4F5D7DD96170}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{D78A8B32-2132-481F-98D1-4F5D7DD96170}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
