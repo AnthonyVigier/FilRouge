@@ -10,29 +10,35 @@ namespace LibraryForum
 {
     public class ResponseDAO
     {
-        public List<Response> listResponses = new List<Response>();
+        private static ResponseDAO _Instance;
 
+        private SQLDataBaseConnection _Database;
+
+        //TODO à mettre private c'est un Singleton et son constructeur doit être private 
+        //Ajouter une classe controleur qui encapsulera toutes les méthodes DAO
+
+        public ResponseDAO()
+        {
+            _Database = SQLDataBaseConnection.GetInstance();
+        }
+
+        public static ResponseDAO GetInstance()
+        {
+            if (_Instance == null)
+                _Instance = new ResponseDAO();
+            return _Instance;
+        }
+
+      
+        //Renvoie toutes les reponses en fonction d'un topic sélectionné
         public List<Response> FindResponsesByTopic(int idtopic)
         {
-            //Déclaration des objets que l'on a besoin
-            DataTable objDataTable = new DataTable();
+            List<Response> listResponses = new List<Response>();
 
-            SqlDataAdapter objDataAdapter = new SqlDataAdapter();
-            SqlCommand objCommand = new SqlCommand();
-            SqlConnection cn = new SqlConnection();
+            string requete  = "SELECT ID_TOPIC, ID_MESSAGE, RESPONSE, USER_LOGIN, DATE_MESSAGE FROM V_FORUM where ID_TOPIC = '" + idtopic + "'" +
+               "ORDER BY DATE_MESSAGE DESC";
 
-
-            //On se connecte à la base de données 
-            cn.ConnectionString = ("Data Source = 176.31.248.137; Initial Catalog = user07; Persist Security Info=True;User ID = user07; Password=753user07");
-            cn.Open();
-
-            //On écrit la requête SQL voulue
-            objCommand.Connection = cn;
-            objCommand.CommandText = "SELECT ID_TOPIC, ID_MESSAGE, RESPONSE, USER_LOGIN, DATE_MESSAGE FROM V_FORUM where ID_TOPIC = '" + idtopic + "'" +
-                "ORDER BY DATE_MESSAGE DESC";
-
-            objDataAdapter.SelectCommand = objCommand;
-            objDataAdapter.Fill(objDataTable);
+            DataTable objDataTable = _Database.ExecuteDataTable(requete);
 
             foreach (DataRow row in objDataTable.Rows)
             {
@@ -46,100 +52,49 @@ namespace LibraryForum
             return listResponses;
         }
 
-
+        //Ajouter une réponse
         public void AddResponse(Response resp)
-        {
-            SqlCommand objCommand = new SqlCommand();
-            SqlConnection cn = new SqlConnection();
-
-            //On se connecte à la base de données 
-            cn.ConnectionString = ("Data Source = 176.31.248.137; Initial Catalog = user07; Persist Security Info=True;User ID = user07; Password=753user07");
-            cn.Open();
-
-            objCommand.Connection = cn;
-
-            objCommand.CommandText = "INSERT INTO MESSAGE (ID_TOPIC, RESPONSE, ID_USER, DATE_MESSAGE)" +
+        {   
+            string requete = "INSERT INTO MESSAGE (ID_TOPIC, RESPONSE, ID_USER, DATE_MESSAGE)" +
                 "VALUES('"+resp.IdTopic+ "','" + resp.ResponseTxt + "'," +
                 "'" + resp.IdAuthor + "','" + resp.DateCreation + "')";
 
-            objCommand.ExecuteNonQuery();
+            _Database.ExecuteTransactionRequest(requete);
         }
 
-
+        //Supprimer une réponse
         public void DeleteResponse(int idResponse)
         {
-            SqlCommand objCommand = new SqlCommand();
-            SqlConnection cn = new SqlConnection();
+           string requete = "DELETE FROM MESSAGE WHERE ID_MESSAGE = '"+idResponse+"'";
 
-            //On se connecte à la base de données 
-            cn.ConnectionString = ("Data Source = 176.31.248.137; Initial Catalog = user07; Persist Security Info=True;User ID = user07; Password=753user07");
-            cn.Open();
-
-            objCommand.Connection = cn;
-
-            objCommand.CommandText = "DELETE FROM MESSAGE WHERE ID_MESSAGE = '"+idResponse+"'";
-
-            objCommand.ExecuteNonQuery();
+           _Database.ExecuteTransactionRequest(requete);
         }
 
-
+        //Suprime toutes les réponse d'un topic à supprimé, qui est sélectionné
         public void DeleteResponseByIdTopic(int idtopic)
         {
-            SqlCommand objCommand = new SqlCommand();
-            SqlConnection cn = new SqlConnection();
+            string requete = "DELETE FROM MESSAGE WHERE ID_TOPIC = '" + idtopic + "'";
 
-            //On se connecte à la base de données 
-            cn.ConnectionString = ("Data Source = 176.31.248.137; Initial Catalog = user07; Persist Security Info=True;User ID = user07; Password=753user07");
-            cn.Open();
-
-            objCommand.Connection = cn;
-
-            objCommand.CommandText = "DELETE FROM MESSAGE WHERE ID_TOPIC = '" + idtopic + "'";
-
-            objCommand.ExecuteNonQuery();
+            _Database.ExecuteTransactionRequest(requete);
         }
 
-
+        //Modifier une réponse
         public void UpdateResponse(Response resp)
         {
-            SqlCommand objCommand = new SqlCommand();
-            SqlConnection cn = new SqlConnection();
-
-            //On se connecte à la base de données 
-            cn.ConnectionString = ("Data Source = 176.31.248.137; Initial Catalog = user07; Persist Security Info=True;User ID = user07; Password=753user07");
-            cn.Open();
-
-            //On écrit la requête SQL voulue
-            objCommand.Connection = cn;
-
-            objCommand.CommandText = "UPDATE MESSAGE SET RESPONSE = '" + resp.ResponseTxt + "'" +
+            string requete = "UPDATE MESSAGE SET RESPONSE = '" + resp.ResponseTxt + "'" +
             "WHERE ID_MESSAGE = '" +resp.IdResponse+ "'";
 
-            objCommand.ExecuteNonQuery();
+            _Database.ExecuteTransactionRequest(requete);
         }
 
-
+        //Revoie toutes les réponses. A revoir si besoin
         public List<Response> FindAllResponses()
         {
-            //Déclaration des objets que l'on a besoin
-            DataTable objDataTable = new DataTable();
+            List<Response> listResponses = new List<Response>();
 
-            SqlDataAdapter objDataAdapter = new SqlDataAdapter();
-            SqlCommand objCommand = new SqlCommand();
-            SqlConnection cn = new SqlConnection();
+            string requete = "SELECT ID_MESSAGE, ID_TOPIC, RESPONSE, USER_LOGIN, DATE_MESSAGE FROM V_FORUM";
 
-
-            //On se connecte à la base de données 
-            cn.ConnectionString = ("Data Source = 176.31.248.137; Initial Catalog = user07; Persist Security Info=True;User ID = user07; Password=753user07");
-            cn.Open();
-
-            //On écrit la requête SQL voulue
-            objCommand.Connection = cn;
-            objCommand.CommandText = "SELECT ID_MESSAGE, ID_TOPIC, RESPONSE, USER_LOGIN, DATE_MESSAGE FROM V_FORUM";
-                
-
-            objDataAdapter.SelectCommand = objCommand;
-            objDataAdapter.Fill(objDataTable);
+            DataTable objDataTable = _Database.ExecuteDataTable(requete);
 
             foreach (DataRow row in objDataTable.Rows)
             {

@@ -316,7 +316,7 @@ namespace IHMForum
         private void dgvMessage_Click(object sender, EventArgs e)
         {
             DataGridViewRow row = dgvMessage.CurrentRow;
-            string nomAuteur = row.Cells[3].Value.ToString();
+            string nomAuteur = row.Cells[4].Value.ToString();
 
             if (nomAuteur == lblUser.Text)
             {

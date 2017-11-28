@@ -11,29 +11,34 @@ namespace LibraryForum
     public class RubricDAO
 
     {
+        private static RubricDAO _Instance;
 
-        public List<Rubric> listeRubrics = new List<Rubric>();
+        private SQLDataBaseConnection _Database;
 
+
+        //TODO à mettre private c'est un Singleton et son constructeur doit être private 
+        //Ajouter une classe controleur qui encapsulera toutes les méthodes DAO
+        public RubricDAO()
+        {
+            _Database = SQLDataBaseConnection.GetInstance();
+        }
+
+        public static RubricDAO GetInstance()
+        {
+            if (_Instance == null)
+                _Instance = new RubricDAO();
+            return _Instance;
+        }
+
+      
+        // Revoie une liste de toutes les rubriques
         public List<Rubric> FindAllRubrics()
         {
-            //Déclaration des objets que l'on a besoin
-            DataTable objDataTable = new DataTable();
+            List<Rubric> listeRubrics = new List<Rubric>();
+         
+            string requete = "SELECT ID_RUBRIC, NAME_RUBRIC, DESC_RUBRIC FROM RUBRIC";
 
-            SqlDataAdapter objDataAdapter = new SqlDataAdapter();
-            SqlCommand objCommand = new SqlCommand();
-            SqlConnection cn = new SqlConnection();
-
-
-            //On se connecte à la base de données 
-            cn.ConnectionString = ("Data Source = 176.31.248.137; Initial Catalog = user07; Persist Security Info=True;User ID = user07; Password=753user07");
-            cn.Open();
-
-            //On écrit la requête SQL voulue
-            objCommand.Connection = cn;
-            objCommand.CommandText = "SELECT ID_RUBRIC, NAME_RUBRIC, DESC_RUBRIC FROM RUBRIC";
-
-            objDataAdapter.SelectCommand = objCommand;
-            objDataAdapter.Fill(objDataTable);
+            DataTable objDataTable = _Database.ExecuteDataTable(requete);
 
             foreach (DataRow row in objDataTable.Rows)
             {
@@ -43,26 +48,14 @@ namespace LibraryForum
             return listeRubrics;
         }
 
-
+        // Renvoie l'identifiant d'une rubrique en fonction de son nom
         public List<Rubric> GetIdRubric(string namerubric)
         {
-
-            DataTable objDataTable = new DataTable();
-            SqlDataAdapter objDataAdapter = new SqlDataAdapter();
-            SqlCommand objCommand = new SqlCommand();
-            SqlConnection cn = new SqlConnection();
-
             List<Rubric> listIdrubric = new List<Rubric>();
 
-            //On se connecte à la base de données 
-            cn.ConnectionString = ("Data Source = 176.31.248.137; Initial Catalog = user07; Persist Security Info=True;User ID = user07; Password=753user07");
-            cn.Open();
+            string requete  = "SELECT ID_RUBRIC FROM V_FORUM WHERE  NAME_RUBRIC = '" + namerubric + "'";
 
-            //On écrit la requête SQL voulue
-            objCommand.Connection = cn;
-            objCommand.CommandText = "SELECT ID_RUBRIC FROM V_FORUM WHERE  NAME_RUBRIC = '" + namerubric + "'";
-            objDataAdapter.SelectCommand = objCommand;
-            objDataAdapter.Fill(objDataTable);
+            DataTable objDataTable = _Database.ExecuteDataTable(requete);
 
             foreach (DataRow row in objDataTable.Rows)
             {

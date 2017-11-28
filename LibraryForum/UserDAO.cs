@@ -10,27 +10,33 @@ namespace LibraryForum
 {
     public class UserDAO
     {
+        private static UserDAO _Instance;
 
+        private SQLDataBaseConnection _Database;
+
+
+        //TODO à mettre private c'est un Singleton et son constructeur doit être private 
+        //Ajouter une classe controleur qui encapsulera toutes les méthodes DAO
+        public UserDAO()
+        {
+            _Database = SQLDataBaseConnection.GetInstance();
+        }
+
+        public static UserDAO GetInstance()
+        {
+            if (_Instance == null)
+                _Instance = new UserDAO();
+            return _Instance;
+        }
+
+
+        //Vérifie les informations de connection d'un utilisateur
         public bool UserConnection(string pseudo, string userpass)
         {
-            //Déclaration des objets que l'on a besoin
-            DataTable objDataTable = new DataTable();
+            string requete = "SELECT ID_USER, USER_LOGIN, USER_PASSWORD, USER_MAIL, USER_FUNCTION FROM RTFFUSER " +
+                "WHERE USER_LOGIN = '" + pseudo + "' AND USER_PASSWORD ='" + userpass + "'";
 
-            SqlDataAdapter objDataAdapter = new SqlDataAdapter();
-            SqlCommand objCommand = new SqlCommand();
-            SqlConnection cn = new SqlConnection();
-
-
-            //On se connecte à la base de données 
-            cn.ConnectionString = ("Data Source = 176.31.248.137; Initial Catalog = user07; Persist Security Info=True;User ID = user07; Password=753user07");
-            cn.Open();
-
-            //On écrit la requête SQL voulue
-            objCommand.Connection = cn;
-            objCommand.CommandText = "SELECT ID_USER, USER_LOGIN, USER_PASSWORD, USER_MAIL, USER_FUNCTION FROM RTFFUSER WHERE USER_LOGIN = '" + pseudo + "' AND USER_PASSWORD ='" + userpass + "'";
-
-            objDataAdapter.SelectCommand = objCommand;
-            objDataAdapter.Fill(objDataTable);
+            DataTable objDataTable = _Database.ExecuteDataTable(requete);
 
             if (objDataTable.Rows.Count == 0)
             {
@@ -40,29 +46,12 @@ namespace LibraryForum
         }
 
 
-
-
+        //Vérifie si l'utilisateur est modérateur
         public bool UserIsModerator(string pseudo, string userpass)
         {
-            //Déclaration des objets que l'on a besoin
-            DataTable objDataTable = new DataTable();
+            string requete = "SELECT ID_USER, USER_LOGIN, USER_PASSWORD, USER_MAIL, USER_FUNCTION FROM RTFFUSER WHERE  USER_LOGIN = '" + pseudo + "' AND USER_PASSWORD ='" + userpass + "' AND USER_FUNCTION ='M'";
 
-            SqlDataAdapter objDataAdapter = new SqlDataAdapter();
-            SqlCommand objCommand = new SqlCommand();
-            SqlConnection cn = new SqlConnection();
-
-
-
-            //On se connecte à la base de données 
-            cn.ConnectionString = ("Data Source = 176.31.248.137; Initial Catalog = user07; Persist Security Info=True;User ID = user07; Password=753user07");
-            cn.Open();
-
-            //On écrit la requête SQL voulue
-            objCommand.Connection = cn;
-            objCommand.CommandText = "SELECT ID_USER, USER_LOGIN, USER_PASSWORD, USER_MAIL, USER_FUNCTION FROM RTFFUSER WHERE  USER_LOGIN = '" + pseudo + "' AND USER_PASSWORD ='" + userpass + "' AND USER_FUNCTION ='M'";
-
-            objDataAdapter.SelectCommand = objCommand;
-            objDataAdapter.Fill(objDataTable);
+            DataTable objDataTable = _Database.ExecuteDataTable(requete);
 
             if (objDataTable.Rows.Count == 0)
             {
@@ -71,26 +60,14 @@ namespace LibraryForum
             return true;
         }
 
-
+        //Retourne l'identifiant de l'utilisateur en fonction du pseudo inscrit
         public List<UserForum> GetIdUser(string pseudo)
         {
-
-            DataTable objDataTable = new DataTable();
-            SqlDataAdapter objDataAdapter = new SqlDataAdapter();
-            SqlCommand objCommand = new SqlCommand();
-            SqlConnection cn = new SqlConnection();
-
             List<UserForum> listeuser = new List<UserForum>();
 
-            //On se connecte à la base de données 
-            cn.ConnectionString = ("Data Source = 176.31.248.137; Initial Catalog = user07; Persist Security Info=True;User ID = user07; Password=753user07");
-            cn.Open();
+            string requete = "SELECT ID_USER, USER_LOGIN, USER_PASSWORD, USER_MAIL, USER_FUNCTION FROM RTFFUSER WHERE USER_LOGIN = '" + pseudo + "'";
 
-            //On écrit la requête SQL voulue
-            objCommand.Connection = cn;
-            objCommand.CommandText = "SELECT ID_USER, USER_LOGIN, USER_PASSWORD, USER_MAIL, USER_FUNCTION FROM RTFFUSER WHERE USER_LOGIN = '" + pseudo + "'";
-            objDataAdapter.SelectCommand = objCommand;
-            objDataAdapter.Fill(objDataTable);
+            DataTable objDataTable = _Database.ExecuteDataTable(requete);
 
             foreach (DataRow row in objDataTable.Rows)
             {
@@ -100,46 +77,25 @@ namespace LibraryForum
             return listeuser;
         }
 
-            public void UpdatePassword(UserForum userForum)
-            {
-                SqlCommand objCommand = new SqlCommand();
-                SqlConnection cn = new SqlConnection();
 
-                //On se connecte à la base de données 
-                cn.ConnectionString = ("Data Source = 176.31.248.137; Initial Catalog = user07; Persist Security Info=True;User ID = user07; Password=753user07");
-                cn.Open();
-
-                //On écrit la requête SQL voulue
-                objCommand.Connection = cn;
-
-                objCommand.CommandText = "UPDATE RTFFUSER SET USER_PASSWORD = '" + userForum.UserPass + "'" +
+        //Permet à l'utilasateur de modifier son mot de passe
+        public void UpdatePassword(UserForum userForum)
+        {
+            string requete  = "UPDATE RTFFUSER SET USER_PASSWORD = '" + userForum.UserPass + "'" +
                 "WHERE USER_LOGIN = '" + userForum.Pseudo + "'";
 
-                objCommand.ExecuteNonQuery();
-
-            }
-
+            _Database.ExecuteTransactionRequest(requete);
+        }
 
 
+        //Retourne la liste des utilisateurs et leurs informations
         public List<UserForum> GetAllUser()
         {
-
-            DataTable objDataTable = new DataTable();
-            SqlDataAdapter objDataAdapter = new SqlDataAdapter();
-            SqlCommand objCommand = new SqlCommand();
-            SqlConnection cn = new SqlConnection();
-
             List<UserForum> listeuser = new List<UserForum>();
 
-            //On se connecte à la base de données 
-            cn.ConnectionString = ("Data Source = 176.31.248.137; Initial Catalog = user07; Persist Security Info=True;User ID = user07; Password=753user07");
-            cn.Open();
+            string requete = "SELECT ID_USER, USER_LOGIN, USER_PASSWORD, USER_MAIL, USER_FUNCTION FROM RTFFUSER";
 
-            //On écrit la requête SQL voulue
-            objCommand.Connection = cn;
-            objCommand.CommandText = "SELECT ID_USER, USER_LOGIN, USER_PASSWORD, USER_MAIL, USER_FUNCTION FROM RTFFUSER";
-            objDataAdapter.SelectCommand = objCommand;
-            objDataAdapter.Fill(objDataTable);
+            DataTable objDataTable = _Database.ExecuteDataTable(requete);
 
             foreach (DataRow row in objDataTable.Rows)
             {

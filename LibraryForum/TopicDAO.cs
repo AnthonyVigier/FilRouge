@@ -10,31 +10,36 @@ namespace LibraryForum
 {
     public class TopicDAO
     {
-        private Topic topic { get; set; }
+        private static TopicDAO _Instance;
 
-        private List<Topic> listeTopics = new List<Topic>();
+        private SQLDataBaseConnection _Database;
 
+        //TODO à mettre private c'est un Singleton et son constructeur doit être private 
+        //Ajouter une classe controleur qui encapsulera toutes les méthodes DAO
+
+        public TopicDAO()
+        {
+            _Database = SQLDataBaseConnection.GetInstance();
+        }
+
+        public static TopicDAO GetInstance()
+        {
+            if (_Instance == null)
+                _Instance = new TopicDAO();
+            return _Instance;
+        }
+
+        //private Topic topic { get; set; }
+
+       
+        //Permet d'afficher le premier topic dans le datagridview des topics à l'ouverture de l'application
         public List<Topic> FindTopicOne()
         {
-            //Déclaration des objets que l'on a besoin
-            DataTable objDataTable = new DataTable();
+            List<Topic> listeTopics = new List<Topic>();
+           
+            string requete = "SELECT ID_TOPIC, ID_RUBRIC, DESC_TOPIC, TITLE_TOPIC, USER_LOGIN, DATE_CREATION FROM v_forum WHERE ID_RUBRIC = 1";
 
-            SqlDataAdapter objDataAdapter = new SqlDataAdapter();
-            SqlCommand objCommand = new SqlCommand();
-            SqlConnection cn = new SqlConnection();
-
-
-            //On se connecte à la base de données 
-            //On se connecte à la base de données 
-            cn.ConnectionString = ("Data Source = 176.31.248.137; Initial Catalog = user07; Persist Security Info=True;User ID = user07; Password=753user07");
-            cn.Open();
-
-            //On écrit la requête SQL voulue
-            objCommand.Connection = cn;
-            objCommand.CommandText = "SELECT ID_TOPIC, ID_RUBRIC, DESC_TOPIC, TITLE_TOPIC, USER_LOGIN, DATE_CREATION FROM v_forum WHERE ID_RUBRIC = 1";
-
-            objDataAdapter.SelectCommand = objCommand;
-            objDataAdapter.Fill(objDataTable);
+            DataTable objDataTable = _Database.ExecuteDataTable(requete);
 
             foreach (DataRow row in objDataTable.Rows)
             {
@@ -45,32 +50,17 @@ namespace LibraryForum
                     row["DESC_TOPIC"].ToString(),
                     Convert.ToDateTime(row["DATE_CREATION"])));
             }
-
-            cn.Close();
-
             return listeTopics;
         }
 
+        //Permet d'afficher tous les topics de la rubrique choisie
         public List<Topic> FindTopicsByRubrics(string NameRubric)
         {
-            //Déclaration des objets que l'on a besoin
-            DataTable objDataTable = new DataTable();
+            List<Topic> listeTopics = new List<Topic>();
 
-            SqlDataAdapter objDataAdapter = new SqlDataAdapter();
-            SqlCommand objCommand = new SqlCommand();
-            SqlConnection cn = new SqlConnection();
+            string requete = "SELECT ID_TOPIC, ID_RUBRIC, DESC_TOPIC, TITLE_TOPIC, USER_LOGIN, DATE_CREATION FROM V_UserRubricTopic where NAME_RUBRIC = '" + NameRubric + "'";
 
-
-            //On se connecte à la base de données 
-            cn.ConnectionString = ("Data Source = 176.31.248.137; Initial Catalog = user07; Persist Security Info=True;User ID = user07; Password=753user07");
-            cn.Open();
-
-            //On écrit la requête SQL voulue
-            objCommand.Connection = cn;
-            objCommand.CommandText = "SELECT ID_TOPIC, ID_RUBRIC, DESC_TOPIC, TITLE_TOPIC, USER_LOGIN, DATE_CREATION FROM V_UserRubricTopic where NAME_RUBRIC = '" + NameRubric + "'";
-
-            objDataAdapter.SelectCommand = objCommand;
-            objDataAdapter.Fill(objDataTable);
+            DataTable objDataTable = _Database.ExecuteDataTable(requete);
 
             foreach (DataRow row in objDataTable.Rows)
             {
@@ -82,129 +72,76 @@ namespace LibraryForum
                       Convert.ToDateTime(row["DATE_CREATION"])));
             }
 
-            cn.Close();
             return listeTopics;
         }
 
 
-
-
+        //Retourne l'identifiant du topic selectionné
         public List<Topic> GetIdTopic(int idtopic)
         {
-            DataTable objDataTable = new DataTable();
-            SqlDataAdapter objDataAdapter = new SqlDataAdapter();
-            SqlCommand objCommand = new SqlCommand();
-            SqlConnection cn = new SqlConnection();
-
+           
             List<Topic> listIdtopic = new List<Topic>();
 
-            //On se connecte à la base de données 
-            cn.ConnectionString = ("Data Source = 176.31.248.137; Initial Catalog = user07; Persist Security Info=True;User ID = user07; Password=753user07");
-            cn.Open();
+            string requete = "SELECT ID_TOPIC FROM V_FORUM WHERE  ID_TOPIC = '" + idtopic + "'";
 
-            //On écrit la requête SQL voulue
-            objCommand.Connection = cn;
-            objCommand.CommandText = "SELECT ID_TOPIC FROM V_FORUM WHERE  ID_TOPIC = '" + idtopic + "'";
-            objDataAdapter.SelectCommand = objCommand;
-            objDataAdapter.Fill(objDataTable);
-
+            DataTable objDataTable = _Database.ExecuteDataTable(requete);
+           
             foreach (DataRow row in objDataTable.Rows)
             {
                 listIdtopic.Add(new Topic(Convert.ToInt32(row["ID_TOPIC"])));
             }
+
             return listIdtopic;
         }
 
 
         public void UpdateTopic(Topic topic)
         {
-            SqlCommand objCommand = new SqlCommand();
-            SqlConnection cn = new SqlConnection();
-            objCommand.Connection = cn;
-
-            //On se connecte à la base de données 
-            cn.ConnectionString = ("Data Source = 176.31.248.137; Initial Catalog = user07; Persist Security Info=True;User ID = user07; Password=753user07");
-            cn.Open();
-            objCommand.CommandText = "UPDATE TOPIC SET TITLE_TOPIC = '" + topic.Title + "', DESC_TOPIC = '" + topic.Description + "'" +
+           string requete = "UPDATE TOPIC SET TITLE_TOPIC = '" + topic.Title + "', DESC_TOPIC = '" + topic.Description + "'" +
                 "WHERE ID_TOPIC ='"+topic.IdTopic+"'";
 
-            objCommand.ExecuteNonQuery();
+            _Database.ExecuteTransactionRequest(requete);
         }
 
-
+        //Permet d'ajouter un Topic 
         public void AjouterTopic(Topic topic)
         {
-            //On se connecte à la base de données 
-            SqlConnection cn = new SqlConnection();
-            cn.ConnectionString = ("Data Source = 176.31.248.137; Initial Catalog = user07; Persist Security Info=True;User ID = user07; Password=753user07");
-            cn.Open();
-
-            SqlCommand objCommand = new SqlCommand();
-
-            objCommand.Connection = cn;
-            objCommand.CommandText = "INSERT INTO TOPIC (ID_RUBRIC, TITLE_TOPIC, DESC_TOPIC, ID_USER, DATE_CREATION) " +
+            string requete = "INSERT INTO TOPIC (ID_RUBRIC, TITLE_TOPIC, DESC_TOPIC, ID_USER, DATE_CREATION) " +
                 "VALUES('" + topic.IdRubric + "','" + topic.Title + "','" + topic.Description + "'," +
                 "'" + topic.IdAuthor+ "','" + topic.DateCreation + "')";
 
-            objCommand.ExecuteNonQuery();
-
+            _Database.ExecuteTransactionRequest(requete);
         }
 
+        //Permet de supprimer le topic sélectionné
         public void DeleteTopic(int idtopic)
         {
-            SqlConnection cn = new SqlConnection();
-            cn.ConnectionString = ("Data Source = 176.31.248.137; Initial Catalog = user07; Persist Security Info=True;User ID = user07; Password=753user07");
-            cn.Open();
+         string requete = "DELETE FROM TOPIC WHERE ID_TOPIC = '" + idtopic + "'";
 
-            SqlCommand objCommand = new SqlCommand();
-
-            objCommand.Connection = cn;
-            objCommand.CommandText = "DELETE FROM TOPIC WHERE ID_TOPIC = '" + idtopic + "'";
-            objCommand.ExecuteNonQuery();
+            _Database.ExecuteTransactionRequest(requete);
         }
 
 
+        //TODO à revoir si besoin
+        //Donne l'id d'un topic en fonction de son titre 
         public DataTable GetIdTopicByTitleTopic(string nametopic)
         {
-            DataTable objDataTable = new DataTable();
-            SqlDataAdapter objDataAdapter = new SqlDataAdapter();
-            SqlCommand objCommand = new SqlCommand();
-            SqlConnection cn = new SqlConnection();
+            string requete = "SELECT ID_TOPIC, TITLE_TOPIC from TOPIC where TITLE_TOPIC ='"+ nametopic +"'";
 
+            DataTable objDataTable = _Database.ExecuteDataTable(requete);
 
-            //On se connecte à la base de données 
-            cn.ConnectionString = ("Data Source = 176.31.248.137; Initial Catalog = user07; Persist Security Info=True;User ID = user07; Password=753user07");
-            cn.Open();
-
-            //On écrit la requête SQL voulue
-            objCommand.Connection = cn;
-            objCommand.CommandText = "SELECT ID_TOPIC, TITLE_TOPIC from TOPIC where TITLE_TOPIC ='"+ nametopic +"'";
-            objDataAdapter.SelectCommand = objCommand;
-            objDataAdapter.Fill(objDataTable);
-
-          
             return objDataTable;
         }
 
 
+        //Permet d'avoir les topics sans les messages pour éviter les doublons : utilisation d'une vue adaptée au besoin
         public List<Topic> FindAllTopics()
         {
-            DataTable objDataTable = new DataTable();
-            SqlDataAdapter objDataAdapter = new SqlDataAdapter();
-            SqlCommand objCommand = new SqlCommand();
-            SqlConnection cn = new SqlConnection();
-
             List<Topic> listtopic = new List<Topic>();
 
-            //On se connecte à la base de données 
-            cn.ConnectionString = ("Data Source = 176.31.248.137; Initial Catalog = user07; Persist Security Info=True;User ID = user07; Password=753user07");
-            cn.Open();
+            string requete = "SELECT ID_TOPIC, ID_RUBRIC, TITLE_TOPIC, USER_LOGIN, DESC_TOPIC, DATE_CREATION FROM V_FORUM";
 
-            //On écrit la requête SQL voulue
-            objCommand.Connection = cn;
-            objCommand.CommandText = "SELECT ID_TOPIC, ID_RUBRIC, TITLE_TOPIC, USER_LOGIN, DESC_TOPIC, DATE_CREATION FROM V_FORUM";
-            objDataAdapter.SelectCommand = objCommand;
-            objDataAdapter.Fill(objDataTable);
+            DataTable objDataTable = _Database.ExecuteDataTable(requete);
 
             foreach (DataRow row in objDataTable.Rows)
             {
@@ -218,13 +155,6 @@ namespace LibraryForum
             return listtopic;
         }
 
-
-
     }
-
-
-        
-
-
 
 }

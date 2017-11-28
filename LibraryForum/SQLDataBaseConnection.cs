@@ -19,9 +19,7 @@ namespace LibraryForum
         {
             cn = new SqlConnection();
             cn.ConnectionString = "Data Source=176.31.248.137;Initial Catalog=user07;Persist Security Info=True;User ID=user07;Password=753user07";
-            cn.Open();
         }
-
 
         //Methods
         public static SQLDataBaseConnection GetInstance()
@@ -33,16 +31,26 @@ namespace LibraryForum
 
         private SqlConnection GetConnection()
         {
-            //Pour lire la chaine de connexion dans le fichier App.config, le projet a besoin d'une référence sur System.Configuration
-
-            //cn.Open(); //En mode déconnecté, le système ouvre la connexion, si elle n'est pas ouverte 
+           // cn.Open(); 
             return cn;
         }
 
+        public DataTable ExecuteDataTable(string selectCommand)
+        {
+            DataTable objDataTable = new DataTable();
+            SqlCommand objCommand = new SqlCommand(selectCommand, GetConnection());
+            SqlDataAdapter objDataAdapter = new SqlDataAdapter(objCommand);
+            objDataAdapter.Fill(objDataTable);
+            return objDataTable;
+        }
 
-
-
-
+        public void ExecuteTransactionRequest(string insertCommand)
+        {
+            cn.Open();
+            SqlCommand objCommand = new SqlCommand(insertCommand, GetConnection());
+            objCommand.ExecuteNonQuery();
+            cn.Close();
+        }
     }
 }
-;
+
