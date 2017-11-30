@@ -13,20 +13,20 @@ namespace IHMForum
 {
     public partial class FenModifPass : Form
     {
+        private Controler objControler;
         public FenModifPass()
         {
             InitializeComponent();
+            objControler = new Controler();
         }
 
         private void stnValiderPass_Click(object sender, EventArgs e)
         {
-
             UserForum uForum = new UserForum();
             uForum.Pseudo = txtSaisieLogin.Text;
             uForum.UserPass = txtSaisiePass.Text;
 
-            UserDAO uDAO = new UserDAO();
-            uDAO.UpdatePassword(uForum);
+            objControler.UpdatePassword(uForum);
 
             MessageBox.Show ("Votre mot de passe à bien été modifié! Veillez le noter : '" + txtSaisiePass.Text + "'",
                              "Modification du mot de passe", MessageBoxButtons.OK, MessageBoxIcon.Information);

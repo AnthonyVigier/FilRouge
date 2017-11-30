@@ -13,23 +13,22 @@ namespace IHMForum
 {
     public partial class FenConnexion : Form
     {
+        private Controler objControler;
         internal bool cnModo;
         internal List<UserForum> idrecup;
 
         public FenConnexion()
         {
             InitializeComponent();
+            objControler = new Controler();
         }
 
         private void btnValiderConnexion_Click(object sender, EventArgs e)
         {
-            UserDAO authentificationUser = new UserDAO();
-           
-            bool connectionUser = authentificationUser.UserConnection(txtLogin.Text, txtPass.Text);
-            cnModo = authentificationUser.UserIsModerator(txtLogin.Text, txtPass.Text);
-            idrecup = authentificationUser.GetIdUser(txtLogin.Text);
+            bool connectionUser = objControler.UserConnection(txtLogin.Text, txtPass.Text);
+            cnModo = objControler.UserIsModerator(txtLogin.Text, txtPass.Text);
+            idrecup = objControler.GetIdUser(txtLogin.Text);
          
-
             if (connectionUser)
             {
                 this.DialogResult = DialogResult.OK;
@@ -42,7 +41,6 @@ namespace IHMForum
                 txtPass.Clear();
                 txtLogin.Focus();
             }
-
         }
 
         private void linkLabel1_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e)
@@ -52,13 +50,5 @@ namespace IHMForum
                 modifpass.ShowDialog();
             }
         }
-
-
-       
-
-
-
-
-        
     }
 }

@@ -14,10 +14,7 @@ namespace LibraryForum
 
         private SQLDataBaseConnection _Database;
 
-        //TODO à mettre private c'est un Singleton et son constructeur doit être private 
-        //Ajouter une classe controleur qui encapsulera toutes les méthodes DAO
-
-        public ResponseDAO()
+        private ResponseDAO()
         {
             _Database = SQLDataBaseConnection.GetInstance();
         }

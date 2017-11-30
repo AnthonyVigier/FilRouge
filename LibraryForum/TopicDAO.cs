@@ -14,10 +14,7 @@ namespace LibraryForum
 
         private SQLDataBaseConnection _Database;
 
-        //TODO à mettre private c'est un Singleton et son constructeur doit être private 
-        //Ajouter une classe controleur qui encapsulera toutes les méthodes DAO
-
-        public TopicDAO()
+        private TopicDAO()
         {
             _Database = SQLDataBaseConnection.GetInstance();
         }
@@ -104,7 +101,7 @@ namespace LibraryForum
         }
 
         //Permet d'ajouter un Topic 
-        public void AjouterTopic(Topic topic)
+        public void AddTopic(Topic topic)
         {
             string requete = "INSERT INTO TOPIC (ID_RUBRIC, TITLE_TOPIC, DESC_TOPIC, ID_USER, DATE_CREATION) " +
                 "VALUES('" + topic.IdRubric + "','" + topic.Title + "','" + topic.Description + "'," +

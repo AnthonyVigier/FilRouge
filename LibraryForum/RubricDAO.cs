@@ -18,7 +18,7 @@ namespace LibraryForum
 
         //TODO à mettre private c'est un Singleton et son constructeur doit être private 
         //Ajouter une classe controleur qui encapsulera toutes les méthodes DAO
-        public RubricDAO()
+        private RubricDAO()
         {
             _Database = SQLDataBaseConnection.GetInstance();
         }

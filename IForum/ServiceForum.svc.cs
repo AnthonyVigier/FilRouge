@@ -13,44 +13,37 @@ namespace IForum
     // REMARQUE : pour lancer le client test WCF afin de tester ce service, sélectionnez Service1.svc ou Service1.svc.cs dans l'Explorateur de solutions et démarrez le débogage.
     public class Service1 : IForum
     {
-     
+        private Controler controler = new Controler();
 
         public List<Response> GetResponse()
         {
-            ResponseDAO resDAO = new ResponseDAO();
             List<Response> listResponsesDAO = new List<Response>();
-
-            listResponsesDAO = resDAO.FindAllResponses();
+            listResponsesDAO = controler.FindAllResponses();
 
             return listResponsesDAO;
         }
 
         public List<Rubric> GetRubrics()
         {
-            RubricDAO rDAO = new RubricDAO();
             List<Rubric> listRubricDAO = new List<Rubric>();
-
-            listRubricDAO = rDAO.FindAllRubrics();
+            listRubricDAO = controler.FindAllRubrics();
 
             return listRubricDAO;
         }
 
         public List<Topic> GetTopics()
         {
-            TopicDAO tDAO = new TopicDAO();
             List<Topic> listTopicsDAO = new List<Topic>();
 
-            listTopicsDAO = tDAO.FindAllTopics();
+            listTopicsDAO = controler.FindAllTopics();
 
             return listTopicsDAO;
         }
 
         public List<UserForum> GetUsers()
         {
-            UserDAO uDAO = new UserDAO();
             List<UserForum> listUsersDAO = new List<UserForum>();
-
-            listUsersDAO = uDAO.GetAllUser();
+            listUsersDAO = controler.GetAllUsers();
 
             return listUsersDAO;
         }

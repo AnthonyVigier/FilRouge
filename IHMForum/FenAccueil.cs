@@ -13,34 +13,39 @@ namespace IHMForum
 {
     public partial class FenAccueil : Form
     {
-   
+
+        //La fenetre utilise un objet Controleur à qui elle adresse les demandes de l'utilisateur
+        private Controler objControler;
+
         public FenAccueil()
         {
             InitializeComponent();
+            objControler = new Controler();
         }
 
         #region FormLoad
 
         private void FenAccueil_Load(object sender, EventArgs e)
         {
-            RubricDAO r = new RubricDAO();
-
-            bindingSourceRubric.DataSource = r.FindAllRubrics();
+            bindingSourceRubric.DataSource = objControler.FindAllRubrics();
             cbxRubric.DataSource = bindingSourceRubric;
 
-            TopicDAO t = new TopicDAO();
-            bindingSourceTopics.DataSource = t.FindTopicOne();
+           
+            bindingSourceTopics.DataSource = objControler.FindTopicOne();
             dgvTopics.DataSource = bindingSourceTopics;
 
             pModerateur.Visible = false;
             PUser.Visible = false;
             pAjoutMessage.Visible = false;
             pSuppMessage.Visible = false;
+
+            DataGridViewRow row = dgvMessage.CurrentRow;
+            string nomAuteur = row.Cells[4].Value.ToString();
         }
 
         #endregion
 
-
+        
         #region Se Connecter
         private void btnConnexion_Click(object sender, EventArgs e)
         {
@@ -85,8 +90,8 @@ namespace IHMForum
                     DataGridViewRow row = dgvTopics.CurrentRow;
 
                     Topic topic = new Topic();
-                    UserDAO userDao = new UserDAO();
-                    List<UserForum> recup = userDao.GetIdUser(lblUser.Text);
+                   
+                    List<UserForum> recup = objControler.GetIdUser(lblUser.Text);
 
                     topic.IdRubric = Convert.ToInt32(row.Cells[5].Value.ToString());
                     topic.Title = fenajouttopic.txtTitreTopic.Text;
@@ -94,9 +99,8 @@ namespace IHMForum
                     topic.IdAuthor = Convert.ToInt32(lblID.Text);
                     topic.DateCreation = DateTime.Now;
 
-                    TopicDAO tDao = new TopicDAO();
-                    tDao.AjouterTopic(topic);
-                    DataTable dataTableTopic = tDao.GetIdTopicByTitleTopic(fenajouttopic.txtTitreTopic.Text);
+                    objControler.AddTopic(topic);
+                    DataTable dataTableTopic = objControler.GetIdTopicByTitleTopic(fenajouttopic.txtTitreTopic.Text);
                     int recupId = Convert.ToInt32(dataTableTopic.Rows[0][0].ToString());
 
                     Response response = new Response();
@@ -105,9 +109,7 @@ namespace IHMForum
                     response.IdAuthor = Convert.ToInt32(lblID.Text);
                     response.DateCreation = DateTime.Now;
 
-
-                    ResponseDAO responseDAO = new ResponseDAO();
-                    responseDAO.AddResponse(response);
+                    objControler.AddResponse(response);
 
                     MessageBox.Show("Topic ajouté avec succès : '" + fenajouttopic.txtTitreTopic.Text + "'",
                      "Topic ajouté", MessageBoxButtons.OK, MessageBoxIcon.Information);
@@ -134,18 +136,15 @@ namespace IHMForum
                 DataGridViewRow row = dgvTopics.CurrentRow;
                 int recupIdTopic = Convert.ToInt32(row.Cells[0].Value);
  
-
                 Response response = new Response();
                 response.IdTopic = recupIdTopic;
 
-                ResponseDAO responseDAO = new ResponseDAO();
-                responseDAO.DeleteResponseByIdTopic(response.IdTopic);
+                objControler.DeleteResponseByIdTopic(response.IdTopic);
 
                 Topic topic = new Topic();
                 topic.IdTopic = recupIdTopic;
 
-                TopicDAO topicDAO = new TopicDAO();
-                topicDAO.DeleteTopic(topic.IdTopic);
+                objControler.DeleteTopic(topic.IdTopic);
 
                 MessageBox.Show("Topic supprimé", "Suppression effectuée avec succès !");
             }
@@ -158,10 +157,9 @@ namespace IHMForum
 
         private void cbxRubric_SelectedIndexChanged(object sender, EventArgs e)
         {
-            TopicDAO t = new TopicDAO();
-            bindingSourceTopics.DataSource = t.FindTopicsByRubrics(cbxRubric.Text);
+       
+            bindingSourceTopics.DataSource = objControler.FindTopicsByRubrics(cbxRubric.Text);
             dgvTopics.DataSource = bindingSourceTopics;
-            
         }
 
         #endregion
@@ -186,8 +184,7 @@ namespace IHMForum
                     topic.Title = fenModifTopic.txtTitreTopic.Text;
                     topic.Description = fenModifTopic.txtDescTopic.Text;
 
-                    TopicDAO topicDao = new TopicDAO();
-                    topicDao.UpdateTopic(topic);
+                    objControler.UpdateTopic(topic);
 
                     MessageBox.Show("Topic modifié avec succès : '"+fenModifTopic.txtTitreTopic.Text+"'",
                         "Topic modifié", MessageBoxButtons.OK,MessageBoxIcon.Information);
@@ -232,8 +229,7 @@ namespace IHMForum
                     response.IdAuthor = Convert.ToInt32(lblID.Text);
                     response.DateCreation = DateTime.Now;
 
-                    ResponseDAO responseDAO = new ResponseDAO();
-                    responseDAO.AddResponse(response);
+                    objControler.AddResponse(response);
 
                     fenajoutMessage.Close();
                 }
@@ -243,14 +239,14 @@ namespace IHMForum
         #endregion
 
 
-        #region Gestion de l'affichege des message en fonction d'un topic sélectionné
+        #region Gestion de l'affichage des messages en fonction d'un topic sélectionné
 
         private void dgvTopics_Click(object sender, EventArgs e)
         {
-            ResponseDAO res = new ResponseDAO();
+           
             DataGridViewRow row = dgvTopics.CurrentRow;
 
-            bindingSourceMessage.DataSource = res.FindResponsesByTopic(Convert.ToInt32(row.Cells[0].Value.ToString()));
+            bindingSourceMessage.DataSource = objControler.FindResponsesByTopic(Convert.ToInt32(row.Cells[0].Value.ToString()));
             dgvMessage.DataSource = bindingSourceMessage;
         }
 
@@ -271,8 +267,7 @@ namespace IHMForum
                 Response response = new Response();
                 response.IdResponse = recupIdResponse;
 
-                ResponseDAO responseDAO = new ResponseDAO();
-                responseDAO.DeleteResponse(response.IdResponse);
+                objControler.DeleteResponse(response.IdResponse);
             }
 
         }
@@ -297,8 +292,7 @@ namespace IHMForum
                     response.IdResponse = Convert.ToInt32(row.Cells[0].Value.ToString());
                     response.ResponseTxt = fenModifMessage.txtModifMessage.Text;
 
-                    ResponseDAO respDAO = new ResponseDAO();
-                    respDAO.UpdateResponse(response);
+                    objControler.UpdateResponse(response);
 
                     MessageBox.Show("Message modifié avec succès : '" + fenModifMessage.txtModifMessage.Text + "'",
                       "Message modifié", MessageBoxButtons.OK, MessageBoxIcon.Information);
@@ -315,7 +309,7 @@ namespace IHMForum
         //Contrôle de modification d'un message
         private void dgvMessage_Click(object sender, EventArgs e)
         {
-            DataGridViewRow row = dgvMessage.CurrentRow;
+             DataGridViewRow row = dgvMessage.CurrentRow;
             string nomAuteur = row.Cells[4].Value.ToString();
 
             if (nomAuteur == lblUser.Text)
@@ -326,6 +320,7 @@ namespace IHMForum
             {
                 btnModifierMessage.Enabled = false;
             }
+       
         }
 
         #endregion 
