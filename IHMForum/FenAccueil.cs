@@ -30,9 +30,12 @@ namespace IHMForum
             bindingSourceRubric.DataSource = objControler.FindAllRubrics();
             cbxRubric.DataSource = bindingSourceRubric;
 
-           
             bindingSourceTopics.DataSource = objControler.FindTopicOne();
             dgvTopics.DataSource = bindingSourceTopics;
+
+            DataGridViewRow rowtopic = dgvTopics.CurrentRow;
+            bindingSourceMessage.DataSource = objControler.FindResponsesByTopic(Convert.ToInt32(rowtopic.Cells[0].Value.ToString()));
+            dgvMessage.DataSource = bindingSourceMessage;
 
             pModerateur.Visible = false;
             PUser.Visible = false;
@@ -157,9 +160,14 @@ namespace IHMForum
 
         private void cbxRubric_SelectedIndexChanged(object sender, EventArgs e)
         {
-       
             bindingSourceTopics.DataSource = objControler.FindTopicsByRubrics(cbxRubric.Text);
             dgvTopics.DataSource = bindingSourceTopics;
+
+            DataGridViewRow rowtopic = dgvTopics.CurrentRow;
+            bindingSourceMessage.DataSource = objControler.FindResponsesByTopic(Convert.ToInt32(rowtopic.Cells[0].Value.ToString()));
+            dgvMessage.DataSource = bindingSourceMessage;
+
+            ModifyResponseControl();
         }
 
         #endregion
@@ -243,11 +251,10 @@ namespace IHMForum
 
         private void dgvTopics_Click(object sender, EventArgs e)
         {
-           
             DataGridViewRow row = dgvTopics.CurrentRow;
-
             bindingSourceMessage.DataSource = objControler.FindResponsesByTopic(Convert.ToInt32(row.Cells[0].Value.ToString()));
             dgvMessage.DataSource = bindingSourceMessage;
+            ModifyResponseControl();
         }
 
         #endregion 
@@ -309,20 +316,26 @@ namespace IHMForum
         //Contrôle de modification d'un message
         private void dgvMessage_Click(object sender, EventArgs e)
         {
-             DataGridViewRow row = dgvMessage.CurrentRow;
+            ModifyResponseControl();
+       
+        }
+
+        private void ModifyResponseControl()
+        {
+            DataGridViewRow row = dgvMessage.CurrentRow;
             string nomAuteur = row.Cells[4].Value.ToString();
 
             if (nomAuteur == lblUser.Text)
             {
                 btnModifierMessage.Enabled = true;
+ 
             }
             else
             {
                 btnModifierMessage.Enabled = false;
+                
             }
-       
         }
-
         #endregion 
     }
 }
